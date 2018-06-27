@@ -7,8 +7,8 @@
 2018-06-25 : FV / initialisation du code
 2018-06-25 : FV / hypothèse :
 1 table geo pour les organismes compétents
-1 table geo pour les zones de gestion.
-1 table geo pour les lots (si sectorisation carto)
+1 table geo pour les zones de gestion
+1 table geo pour les lots (si sectorisation auprès de plusieurs intervenants extérieurs)
 1 table alpha pour les presta
 1 orga à de 0 à n zones de gestion.
 1 zone de gestion appartient à 1 et 1 seul organisme gestionnaire.
@@ -22,13 +22,15 @@
 1 vue alpha pour tab de synthèse par commune de tous les réseaux
 
 
-DO
+CHANGELOG
 
-2018-06-25 : FV / transformation classe entité contrat en zone de gestion car cela permet de traiter les cas de régie à ce niveau
-2018-06-26 : FV / ajout de la vérification que l'orga compétent intersect le pays compiégnois lors de l'insert ou l'update
+2018-06-25 : FV / Transformation classe entité contrat en zone de gestion car cela permet de traiter les cas de régie à ce niveau
+2018-06-26 : FV / Ajout de la vérification que l'orga compétent intersect le pays compiégnois lors de l'insert ou l'update
+2018-06-27 : FV / Changement type geom polygon en multipolygon de façon à pouvoir gérer les cas particuliers
+2018-06-27 : FV / remplacement de l'enchainement de requete d'analyse spatiale unitaire par la fonction st_relate
 
 TODO
-* gérer les non superposition entre organismes (voir zone de gestion et lot) PAR TYPE DE RESEAU
+* gérer les non superposition entre zone de gestion et lot PAR TYPE DE RESEAU
 * voir pour gérer prb de topologie pour la vue par commune
 * st_overlaps autorise une geometrie totalement à l'intérieur d'une autre ... à vérifier
 * changer les fonctions d'interrogation spatiale de base par du st_relate
@@ -75,7 +77,7 @@ CREATE TABLE m_reseau_humide.geo_resh_orga_compet
   src character varying(80),
   date_sai timestamp without time zone NOT NULL DEFAULT now(),   
   date_maj timestamp without time zone,
-  geom geometry(Polygon,2154) NOT NULL,
+  geom geometry(MultiPolygon,2154) NOT NULL,
        
   CONSTRAINT geo_resh_orga_compet_pkey PRIMARY KEY (id_orga)
 )
@@ -138,7 +140,7 @@ CREATE TABLE m_reseau_humide.geo_resh_gest
   src character varying(80),
   date_sai timestamp without time zone NOT NULL DEFAULT now(),   
   date_maj timestamp without time zone,
-  geom geometry(Polygon,2154) NOT NULL,
+  geom geometry(MultiPolygon,2154) NOT NULL,
        
   CONSTRAINT geo_resh_gest_pkey PRIMARY KEY (id_gest),
   CONSTRAINT geo_resh_id_orga_fkey FOREIGN KEY (id_orga)
@@ -201,7 +203,7 @@ CREATE TABLE m_reseau_humide.geo_resh_lot
   src character varying(80),
   date_sai timestamp without time zone NOT NULL DEFAULT now(),   
   date_maj timestamp without time zone,
-  geom geometry(Polygon,2154) NOT NULL,
+  geom geometry(MultiPolygon,2154) NOT NULL,
        
   CONSTRAINT geo_resh_lot_pkey PRIMARY KEY (id_lot),
   CONSTRAINT geo_resh_id_gest_fkey FOREIGN KEY (id_gest)
@@ -247,7 +249,7 @@ ALTER TABLE m_reseau_humide.geo_resh_lot ALTER COLUMN id_lot SET DEFAULT nextval
 
 -- #################################################################### PRESTATAIRE ########################################################
 
-
+-- voir si domaine de valeur ou table à part entière
 
 
 
