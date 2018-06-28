@@ -1,2 +1,2 @@
-# orga_gest_reseau
-Organisation de la gestion des réseaux
+# orga_gest_resh
+Organisation de la gestion des réseaux humides
