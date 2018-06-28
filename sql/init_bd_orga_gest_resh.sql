@@ -47,7 +47,7 @@ TODO
 
 -- Schema: m_reseau_humide
 
--- DROP SCHEMA m_reseau_humide;
+DROP SCHEMA IF EXISTS m_reseau_humide CASCADE;
 
 CREATE SCHEMA m_reseau_humide
   AUTHORIZATION postgres;
@@ -523,11 +523,9 @@ IF (TG_OP = 'INSERT') THEN
 NEW.type_res = LEFT(NEW.sstype_res,1);
 -- en cas d'insert, la date de maj est obligatoirement NULL
 NEW.date_maj = NULL;
--- vérification que l'emprise de l'organisme compétent ne ne supperpose par avec un autre pour le même sous-type de réseau OU que l'organisme compétent intersecte le pays compiégnois
---NEW.geom = CASE WHEN ST_Overlaps(NEW.geom,(SELECT ST_Union(geom) FROM m_reseau_humide.geo_resh_orga_compet as u WHERE NEW.sstype_res = u.sstype_res)) = TRUE OR ST_Intersects(NEW.geom, (SELECT geom FROM r_osm.geo_v_osm_contour_apc)) = FALSE THEN NULL ELSE NEW.geom END;
+-- vérification par une matrice de relation spatiale que le nombre de superposition est de 0 entre l'emprise du nouvel organisme compétent et celles des autres organismes compétents sur le même sous-type de réseau ET que l'organisme compétent intersecte le pays compiégnois
+NEW.geom = CASE WHEN ((SELECT COUNT(a.id_orga) id_a FROM m_reseau_humide.geo_resh_orga_compet a, m_reseau_humide.geo_resh_orga_compet b WHERE (ST_Relate(NEW.geom, b.geom, '2********') AND (NEW.id_orga <> b.id_orga) AND (NEW.sstype_res = b.sstype_res))) = 0 AND ST_Intersects(NEW.geom, (SELECT c.geom FROM r_osm.geo_v_osm_contour_apc c)) = TRUE) THEN NEW.geom ELSE NULL END;  
 
--- vérification par une matrice de relation spatiale que l'emprise du nouvel organisme compétent ne se supperpose pas avec celle d'un autre organisme compétent sur le même sous-type de réseau ET que l'organisme compétent intersecte le pays compiégnois
-NEW.geom = CASE WHEN (SELECT b.id_orga FROM m_reseau_humide.geo_resh_orga_compet b WHERE (ST_relate(NEW.geom, b.geom, '2********') AND (NEW.sstype_res = b.sstype_res))) IS NULL AND ST_Intersects(NEW.geom, (SELECT geom FROM r_osm.geo_v_osm_contour_apc)) = TRUE THEN NEW.geom ELSE NULL END;
 
 RETURN NEW;
 
@@ -538,8 +536,8 @@ ELSIF (TG_OP = 'UPDATE') THEN
 NEW.type_res = LEFT(NEW.sstype_res,1);
 -- en cas d'update, la date de maj est obligatoirement horodatée
 NEW.date_maj = now();
--- vérification par une matrice de relation spatiale que l'emprise du nouvel organisme compétent ne se supperpose pas avec celle d'un autre organisme compétent sur le même sous-type de réseau ET que l'organisme compétent intersecte le pays compiégnois
-NEW.geom = CASE WHEN (SELECT b.id_orga FROM m_reseau_humide.geo_resh_orga_compet b WHERE (ST_relate(NEW.geom, b.geom, '2********') AND (NEW.sstype_res = b.sstype_res))) IS NULL AND ST_Intersects(NEW.geom, (SELECT geom FROM r_osm.geo_v_osm_contour_apc)) = TRUE THEN NEW.geom ELSE NULL END;
+-- vérification par une matrice de relation spatiale que le nombre de superposition est de 0 entre l'emprise du nouvel organisme compétent et celles des autres organismes compétents sur le même sous-type de réseau ET que l'organisme compétent intersecte le pays compiégnois
+NEW.geom = CASE WHEN ((SELECT COUNT(a.id_orga) id_a FROM m_reseau_humide.geo_resh_orga_compet a, m_reseau_humide.geo_resh_orga_compet b WHERE (ST_Relate(NEW.geom, b.geom, '2********') AND (NEW.id_orga <> b.id_orga) AND (NEW.sstype_res = b.sstype_res))) = 0 AND ST_Intersects(NEW.geom, (SELECT c.geom FROM r_osm.geo_v_osm_contour_apc c)) = TRUE) THEN NEW.geom ELSE NULL END;  
 RETURN NEW;
 
 END IF;
@@ -697,9 +695,18 @@ CREATE TRIGGER t_geo_resh_lot
 --SELECT * FROM m_reseau_humide.geo_resh_orga_compet as a WHERE st_overlaps(a.geom, (SELECT geom FROM m_reseau_humide.geo_resh_orga_compet WHERE id_orga = 1)) IS TRUE;
 --SELECT * FROM m_reseau_humide.geo_resh_orga_compet as a WHERE st_intersects(a.geom, (SELECT geom FROM m_reseau_humide.geo_resh_orga_compet WHERE id_orga = 1)) IS TRUE;
 SELECT * FROM m_reseau_humide.geo_resh_orga_compet as a WHERE st_touches(a.geom, (SELECT geom FROM m_reseau_humide.geo_resh_orga_compet WHERE id_orga = 1)) IS TRUE;
-SELECT a.id_orga as a, b.id_orga as b FROM m_reseau_humide.geo_resh_orga_compet a, m_reseau_humide.geo_resh_orga_compet b WHERE (ST_Relate(a.geom, b.geom, '2********') AND (a.sstype_res = b.sstype_res) AND (a.id_orga <> b.id_orga));
+SELECT a.id_orga id_a, b.id_orga id_b FROM m_reseau_humide.geo_resh_orga_compet a, m_reseau_humide.geo_resh_orga_compet b WHERE (ST_Relate(a.geom, b.geom, '2********') AND (a.sstype_res = b.sstype_res) AND (a.id_orga <> b.id_orga));
+
+Les 2 résultats retournent le même résultat, l'un fait le produit cartésien de chaque entité de la table par jointure, l'autre, fait la comparaison de chaque entité avec la fusion de toutes les autres
+select a.id_orga id_a FROM m_reseau_humide.geo_resh_orga_compet a, m_reseau_humide.geo_resh_orga_compet b WHERE ST_Relate(a.geom, b.geom, '2********') AND a.id_orga <> b.id_orga AND a.sstype_res = b.sstype_res GROUP BY a.id_orga ORDER BY a.id_orga;
+select a.id_orga FROM m_reseau_humide.geo_resh_orga_compet a WHERE ST_Relate(a.geom, (SELECT ST_Union(b.geom) FROM m_reseau_humide.geo_resh_orga_compet b WHERE a.id_orga <> b.id_orga AND a.sstype_res = b.sstype_res) , '2********') GROUP BY a.id_orga ORDER BY a.id_orga;
 
 
+test perf sur commune du cadastre :
+select a.geo_commune id_a FROM r_cadastre_16.geo_commune a, r_cadastre_16.geo_commune b WHERE ST_Relate(a.geom, b.geom, '2********') AND a.geo_commune <> b.geo_commune GROUP BY a.geo_commune ORDER BY a.geo_commune;
+2,6 secondes
 
+select a.geo_commune FROM r_cadastre_16.geo_commune a WHERE ST_Relate(a.geom, (SELECT ST_Union(b.geom) FROM r_cadastre_16.geo_commune b WHERE a.geo_commune <> b.geo_commune) , '2********') GROUP BY a.geo_commune ORDER BY a.geo_commune;
+2min52s
 
 */
