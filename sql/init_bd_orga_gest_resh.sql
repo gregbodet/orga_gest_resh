@@ -86,7 +86,6 @@ WITH (
 );
 ALTER TABLE m_reseau_humide.geo_resh_orga_compet
   OWNER TO postgres;
-GRANT ALL ON TABLE m_reseau_humide.geo_resh_orga_compet TO groupe_sig WITH GRANT OPTION;
 GRANT ALL ON TABLE m_reseau_humide.geo_resh_orga_compet TO postgres;
 
 COMMENT ON TABLE m_reseau_humide.geo_resh_orga_compet
@@ -117,7 +116,6 @@ CREATE SEQUENCE m_reseau_humide.geo_resh_orga_compet_id_seq
 ALTER TABLE m_reseau_humide.geo_resh_orga_compet_id_seq
   OWNER TO postgres;
 GRANT ALL ON SEQUENCE m_reseau_humide.geo_resh_orga_compet_id_seq TO postgres;
-GRANT ALL ON SEQUENCE m_reseau_humide.geo_resh_orga_compet_id_seq TO groupe_sig WITH GRANT OPTION;
 ALTER TABLE m_reseau_humide.geo_resh_orga_compet ALTER COLUMN id_orga SET DEFAULT nextval('m_reseau_humide.geo_resh_orga_compet_id_seq'::regclass);
 
 
@@ -152,7 +150,6 @@ WITH (
 );
 ALTER TABLE m_reseau_humide.geo_resh_gest
   OWNER TO postgres;
-GRANT ALL ON TABLE m_reseau_humide.geo_resh_gest TO groupe_sig WITH GRANT OPTION;
 GRANT ALL ON TABLE m_reseau_humide.geo_resh_gest TO postgres;
 
 COMMENT ON TABLE m_reseau_humide.geo_resh_gest
@@ -183,7 +180,6 @@ CREATE SEQUENCE m_reseau_humide.geo_resh_gest_id_seq
 ALTER TABLE m_reseau_humide.geo_resh_gest_id_seq
   OWNER TO postgres;
 GRANT ALL ON SEQUENCE m_reseau_humide.geo_resh_gest_id_seq TO postgres;
-GRANT ALL ON SEQUENCE m_reseau_humide.geo_resh_gest_id_seq TO groupe_sig WITH GRANT OPTION;
 ALTER TABLE m_reseau_humide.geo_resh_gest ALTER COLUMN id_gest SET DEFAULT nextval('m_reseau_humide.geo_resh_gest_id_seq'::regclass);
 
 
@@ -215,7 +211,6 @@ WITH (
 );
 ALTER TABLE m_reseau_humide.geo_resh_lot
   OWNER TO postgres;
-GRANT ALL ON TABLE m_reseau_humide.geo_resh_lot TO groupe_sig WITH GRANT OPTION;
 GRANT ALL ON TABLE m_reseau_humide.geo_resh_lot TO postgres;
 
 COMMENT ON TABLE m_reseau_humide.geo_resh_lot
@@ -243,7 +238,6 @@ CREATE SEQUENCE m_reseau_humide.geo_resh_lot_id_seq
 ALTER TABLE m_reseau_humide.geo_resh_lot_id_seq
   OWNER TO postgres;
 GRANT ALL ON SEQUENCE m_reseau_humide.geo_resh_lot_id_seq TO postgres;
-GRANT ALL ON SEQUENCE m_reseau_humide.geo_resh_lot_id_seq TO groupe_sig WITH GRANT OPTION;
 ALTER TABLE m_reseau_humide.geo_resh_lot ALTER COLUMN id_lot SET DEFAULT nextval('m_reseau_humide.geo_resh_lot_id_seq'::regclass);
 
 
@@ -278,7 +272,6 @@ WITH (
 ALTER TABLE m_reseau_humide.lt_resh_type_orga
   OWNER TO postgres;
 GRANT ALL ON TABLE m_reseau_humide.lt_resh_type_orga TO postgres;
-GRANT ALL ON TABLE m_reseau_humide.lt_resh_type_orga TO groupe_sig WITH GRANT OPTION;
 COMMENT ON TABLE m_reseau_humide.lt_resh_type_orga
   IS 'Code permettant de décrire le type d''organisme exercant une compétence sur les réseaux';
 COMMENT ON COLUMN m_reseau_humide.lt_resh_type_orga.code IS 'Code ';
@@ -312,7 +305,6 @@ WITH (
 ALTER TABLE m_reseau_humide.lt_resh_type_res
   OWNER TO postgres;
 GRANT ALL ON TABLE m_reseau_humide.lt_resh_type_res TO postgres;
-GRANT ALL ON TABLE m_reseau_humide.lt_resh_type_res TO groupe_sig WITH GRANT OPTION;
 COMMENT ON TABLE m_reseau_humide.lt_resh_type_res
   IS 'Code permettant de décrire le type de réseau humide';
 COMMENT ON COLUMN m_reseau_humide.lt_resh_type_res.code IS 'Code';
@@ -348,7 +340,6 @@ WITH (
 ALTER TABLE m_reseau_humide.lt_resh_sstype_res
   OWNER TO postgres;
 GRANT ALL ON TABLE m_reseau_humide.lt_resh_sstype_res TO postgres;
-GRANT ALL ON TABLE m_reseau_humide.lt_resh_sstype_res TO groupe_sig WITH GRANT OPTION;
 COMMENT ON TABLE m_reseau_humide.lt_resh_sstype_res
   IS 'Code permettant de décrire le sous type de réseau humide';
 COMMENT ON COLUMN m_reseau_humide.lt_resh_sstype_res.code IS 'Code';
@@ -386,7 +377,7 @@ WITH (
 ALTER TABLE m_reseau_humide.lt_resh_mode_gest
   OWNER TO postgres;
 GRANT ALL ON TABLE m_reseau_humide.lt_resh_mode_gest TO postgres;
-GRANT ALL ON TABLE m_reseau_humide.lt_resh_mode_gest TO groupe_sig WITH GRANT OPTION;
+
 COMMENT ON TABLE m_reseau_humide.lt_resh_mode_gest
   IS 'Code permettant de décrire le mode de gestion d''un réseau';
 COMMENT ON COLUMN m_reseau_humide.lt_resh_mode_gest.code IS 'Code';
